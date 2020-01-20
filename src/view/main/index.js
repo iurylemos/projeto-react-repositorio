@@ -1,7 +1,11 @@
 import React from 'react';
+import { Title } from './main-styled';
 
 export default function Main() {
   return (
-    <h1>Main</h1>
+    <Title>
+      Main
+      <span>Olá Mundo!</span>
+    </Title>
   )
 }
