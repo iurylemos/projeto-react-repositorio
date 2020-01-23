@@ -1,8 +1,46 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { FaGithub, FaPlus } from 'react-icons/fa'
 import { Container, Form, SubmitButton } from './main-styled';
+import api from '../../services/api';
 
 export default function Main() {
+
+  const [newRepo, setNewRepo] = useState('');
+  const [repositorios, setRepositorios] = useState([]);
+
+  function handleInputChange(event) {
+    setNewRepo(event);
+  }
+
+  const handleSubmit = useCallback((evento) => {
+
+    evento.preventDefault()
+
+    async function submit() {
+      console.log(newRepo)
+      const response = await api.get(`repos/${newRepo}`)
+
+      //Aqui eu tinha um array
+      //E fiz a descontrução atribuindo ao data
+
+      // console.log(response.data)
+
+      const data = {
+        name: response.data.full_name,
+      }
+
+      //Como eu quero apenas concatenar, vou botando o operador expred
+      //com o que já existe, e atribuindo o data
+
+      setRepositorios([...repositorios, data]);
+      setNewRepo('')
+    }
+
+    //Chamanado ela para ser executada
+    submit();
+  }, [newRepo, repositorios])
+
+
   return (
     <Container>
       <h1>
@@ -10,8 +48,8 @@ export default function Main() {
         Meus repositórios
       </h1>
 
-      <Form onSubmit={() => { }}>
-        <input type="text" placeholder="Adicionar repositórios" />
+      <Form onSubmit={handleSubmit}>
+        <input type="text" placeholder="Adicionar repositórios" value={newRepo} onChange={(e) => handleInputChange(e.target.value)} />
         <SubmitButton>
           <FaPlus color="#FFF" size={14} />
         </SubmitButton>
