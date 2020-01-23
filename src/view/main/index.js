@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { FaGithub, FaPlus } from 'react-icons/fa'
+import { FaGithub, FaPlus, FaSpinner } from 'react-icons/fa'
 import { Container, Form, SubmitButton } from './main-styled';
 import api from '../../services/api';
 
@@ -7,6 +7,7 @@ export default function Main() {
 
   const [newRepo, setNewRepo] = useState('');
   const [repositorios, setRepositorios] = useState([]);
+  const [loading, setLoading] = useState(false)
 
   function handleInputChange(event) {
     setNewRepo(event);
@@ -17,23 +18,33 @@ export default function Main() {
     evento.preventDefault()
 
     async function submit() {
-      console.log(newRepo)
-      const response = await api.get(`repos/${newRepo}`)
+      setLoading(true)
 
-      //Aqui eu tinha um array
-      //E fiz a descontrução atribuindo ao data
+      try {
 
-      // console.log(response.data)
+        console.log(newRepo)
+        const response = await api.get(`repos/${newRepo}`)
 
-      const data = {
-        name: response.data.full_name,
+        //Aqui eu tinha um array
+        //E fiz a descontrução atribuindo ao data
+
+        // console.log(response.data)
+
+        const data = {
+          name: response.data.full_name,
+        }
+
+        //Como eu quero apenas concatenar, vou botando o operador expred
+        //com o que já existe, e atribuindo o data
+
+        setRepositorios([...repositorios, data]);
+        setNewRepo('')
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setLoading(false)
       }
 
-      //Como eu quero apenas concatenar, vou botando o operador expred
-      //com o que já existe, e atribuindo o data
-
-      setRepositorios([...repositorios, data]);
-      setNewRepo('')
     }
 
     //Chamanado ela para ser executada
@@ -50,8 +61,10 @@ export default function Main() {
 
       <Form onSubmit={handleSubmit}>
         <input type="text" placeholder="Adicionar repositórios" value={newRepo} onChange={(e) => handleInputChange(e.target.value)} />
-        <SubmitButton>
-          <FaPlus color="#FFF" size={14} />
+        <SubmitButton loading={loading ? 1 : 0} >
+          {
+            loading ? (<FaSpinner color="#FFF" size={14} />) : <FaPlus color="#FFF" size={14} />
+          }
         </SubmitButton>
       </Form>
 
