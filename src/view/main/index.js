@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 //Fonte é font awesome icons
 import { FaGithub, FaPlus, FaSpinner, FaBars, FaTrash } from 'react-icons/fa'
 import { Container, Form, SubmitButton, List, DeleteButton } from './main-styled';
@@ -9,9 +9,32 @@ export default function Main() {
   const [newRepo, setNewRepo] = useState('');
   const [repositorios, setRepositorios] = useState([]);
   const [loading, setLoading] = useState(false)
+  const [alert, setAlert] = useState(null)
+
+  //DidMount - Buscar todas as vezes que ele iniciar
+  useEffect(() => {
+    const repoStorage = localStorage.getItem('repos')
+
+    //E se tiver eu passo para o setRepositorios transformando de novo em um array
+    if (repoStorage) {
+      setRepositorios(JSON.parse(repoStorage))
+    }
+
+  }, [])
+
+
+
+  //DidUpdate - Salvar Alterações
+  //Quando ela sofrer alterações ela vai salvar aqui
+  //JSON stringify é para transformar em um objeto em string
+  useEffect(() => {
+    localStorage.setItem('repos', JSON.stringify(repositorios))
+  }, [repositorios])
+
 
   function handleInputChange(event) {
     setNewRepo(event);
+    setAlert(null);
   }
 
   //Como vou manipular e trabalhar com state é interessante
@@ -31,11 +54,24 @@ export default function Main() {
 
     async function submit() {
       setLoading(true)
+      setAlert(null)
 
       try {
 
+        if (newRepo === '') {
+          throw new Error('Você precisa indicar um repositório')
+        }
+
         console.log(newRepo)
         const response = await api.get(`repos/${newRepo}`)
+
+        //Verificando se há repositório duplicado
+        //Vou varrendo o array verificando se existe o repo.name igual o que eu digitei
+        const hasRepo = repositorios.find(repo => repo.name === newRepo)
+
+        if (hasRepo) {
+          throw new Error('Repositório duplicado')
+        }
 
         //Aqui eu tinha um array
         //E fiz a descontrução atribuindo ao data
@@ -52,6 +88,7 @@ export default function Main() {
         setRepositorios([...repositorios, data]);
         setNewRepo('')
       } catch (error) {
+        setAlert(true)
         console.log(error)
       } finally {
         setLoading(false)
@@ -71,7 +108,7 @@ export default function Main() {
         Meus repositórios
       </h1>
 
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} error={alert}>
         <input type="text" placeholder="Adicionar repositórios" value={newRepo} onChange={(e) => handleInputChange(e.target.value)} />
         <SubmitButton loading={loading ? 1 : 0} >
           {
