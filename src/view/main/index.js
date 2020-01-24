@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { FaGithub, FaPlus, FaSpinner } from 'react-icons/fa'
-import { Container, Form, SubmitButton } from './main-styled';
+//Fonte é font awesome icons
+import { FaGithub, FaPlus, FaSpinner, FaBars, FaTrash } from 'react-icons/fa'
+import { Container, Form, SubmitButton, List, DeleteButton } from './main-styled';
 import api from '../../services/api';
 
 export default function Main() {
@@ -12,6 +13,17 @@ export default function Main() {
   function handleInputChange(event) {
     setNewRepo(event);
   }
+
+  //Como vou manipular e trabalhar com state é interessante
+  //A utilização do useCallback
+  //Se eu tivesse só atualizando ou atribuindo
+  //E não pegando dado de uma state e atualizando
+
+  const handleDelete = useCallback((repo) => {
+    //Procurando se existe esse nome no array
+    const find = repositorios.filter(r => r.name !== repo);
+    setRepositorios(find)
+  }, [repositorios]);
 
   const handleSubmit = useCallback((evento) => {
 
@@ -67,6 +79,24 @@ export default function Main() {
           }
         </SubmitButton>
       </Form>
+
+      <List>
+        {
+          repositorios.map((repo) => (
+            <li key={repo.name}>
+              <span>
+                <DeleteButton onClick={() => handleDelete(repo.name)}>
+                  <FaTrash size={14} />
+                </DeleteButton>
+                {repo.name}
+              </span>
+              <a href="/">
+                <FaBars size={20} />
+              </a>
+            </li>
+          ))
+        }
+      </List>
 
     </Container>
   )

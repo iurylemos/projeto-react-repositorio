@@ -73,3 +73,36 @@ export const SubmitButton = styled.button.attrs(props => ({
     `
   }
 `
+// Quando eu coloco o & + li, ele ignora o primeiro e só estiliza do segundo em diante
+export const List = styled.ul`
+  list-style: none;
+  margin-top: 20px;
+
+  li {
+    padding: 15px 0;
+    display: flex;
+    flex-direction: row;
+    aling-items: center;
+    justify-content: space-between;
+
+    & + li {
+      border-top: 1px solid #eee;
+    }
+
+    a {
+      color: #0D2636;
+      text-decoration: none;
+    }
+  }
+`
+
+export const DeleteButton = styled.button.attrs({
+  type: 'button'
+})`
+  background: transparent;
+  color: #0D2636;
+  border: 0;
+  padding: 8px 7px;
+  outline: 0;
+  border-radius: 4px;
+`;
