@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 //Fonte é font awesome icons
 import { FaGithub, FaPlus, FaSpinner, FaBars, FaTrash } from 'react-icons/fa'
 import { Container, Form, SubmitButton, List, DeleteButton } from './main-styled';
+import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
 export default function Main() {
@@ -127,9 +128,12 @@ export default function Main() {
                 </DeleteButton>
                 {repo.name}
               </span>
-              <a href="/">
+              {/* Utilizando o encodeURIComponent para indiciar que isso é um parâmetro para a URL
+              Pois se tivesse angular/angular ia dar error pois o react iria entender
+              Que está subindo um nível de pasta */}
+              <Link to={`/repositorio/${encodeURIComponent(repo.name)}`}>
                 <FaBars size={20} />
-              </a>
+              </Link>
             </li>
           ))
         }
