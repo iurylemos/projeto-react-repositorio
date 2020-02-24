@@ -1,11 +1,70 @@
-import React from 'react';
-
+import React, { useState, useEffect } from 'react';
+import { Container, Owner, Loading, BackButton } from './styles';
+import api from '../../services/api';
+import { FaArrowLeft } from 'react-icons/fa';
+// {decodeURIComponent(match.params.repositorio)}
 export default function Repositorio({ match }) {
+
+  const [repositorio, setRepositorio] = useState({});
+  const [issues, setIssues] = useState([]);
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    //Requisição
+    //nome do repositorio é o mesmo que estou recebendo por parãmetro
+    async function load() {
+      const nomeRepo = decodeURIComponent(match.params.repositorio);
+
+      // const response = await api.get(`/repos/${nomeRepo}`)
+      // const issues = await api.get(`/repos/${nomeRepo}/issues`)
+      //Para não ter que fazer duas requisições igual iria fazer
+      //Acima para pegar os detalhes e depois as issues
+      //Eu faço um array de promisse que assim ele vai executar as duas
+      //E devolve para mim em um array só!
+      const [repositorioData, issuesData] = await Promise.all([
+        api.get(`/repos/${nomeRepo}`),
+        api.get(`/repos/${nomeRepo}/issues`, {
+          params: {
+            state: 'open',
+            per_page: 5
+          }
+        })
+      ])
+
+      setRepositorio(repositorioData.data)
+      setIssues(issuesData.data)
+      setLoading(false);
+
+      console.log(repositorioData.data)
+      console.log(issuesData.data)
+    }
+
+    load();
+  }, [match.params.repositorio])
+
+  if (loading) {
+    return (
+      <Loading>
+        <h1>Carregando...</h1>
+      </Loading>
+    )
+  }
   return (
     //Eu sei que é um repositorio pq eu passei na rota /:repositorio
     //E eu decodifiquei, pois eu codifiquei para ele não entender que seja algo de pasta e etc
-    <h1 style={{ color: "#FFF" }}>
-      {decodeURIComponent(match.params.repositorio)}
-    </h1>
+    <Container style={{ color: "#FFF" }}>
+
+      <BackButton to="/">
+        <FaArrowLeft color="#000" size={30} />
+      </BackButton>
+
+      <Owner>
+        <img src={repositorio.owner.avatar_url}
+          alt={repositorio.owner.login}
+        />
+        <h1>{repositorio.name}</h1>
+        <p>{repositorio.description}</p>
+      </Owner>
+    </Container>
   )
 }
